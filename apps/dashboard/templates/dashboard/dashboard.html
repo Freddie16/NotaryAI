@@ -1,0 +1,94 @@
+{# apps/dashboard/templates/dashboard/dashboard.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load static %} {# Load static files #}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Dashboard Overview</h2>
+
+    {# Display Django messages #}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {# Quick Stats Section (Example) #}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Total Matters</h5>
+                    {# Replace with actual count from context #}
+                    <p class="card-text display-4">{{ total_matters|default:0 }}</p>
+                    <a href="{% url 'workflows:matter_list' %}" class="btn btn-outline-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Active Clients</h5>
+                     {# Replace with actual count from context #}
+                    <p class="card-text display-4">{{ active_clients|default:0 }}</p>
+                    <a href="{% url 'client_list' %}" class="btn btn-outline-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Compliance</h5>
+                     {# Replace with actual count from context #}
+                    <p class="card-text display-4">{{ pending_compliance|default:0 }}</p>
+                    <a href="{% url 'compliance_check_list' %}" class="btn btn-outline-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Added sections for workflows and clients #}
+    <div class="row">
+        <div class="col-md-6 mb-4"> {# Added mb-4 for spacing below the row #}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Active Workflows</h5>
+                    {# Add logic to display active workflows #}
+                    <p class="card-text">Summary of workflows currently in progress...</p>
+                    {# Corrected URL name from 'workflow_list' to 'workflows:matter_list' #}
+                    <a href="{% url 'workflows:matter_list' %}" class="btn btn-primary">View All Workflows</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4"> {# Added mb-4 for spacing below the row #}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your Clients</h5>
+                    {# Add logic to display client summary #}
+                    <p class="card-text">Overview of clients associated with your account...</p>
+                    {# Assuming a URL named 'client_list' exists - this seems correct from your urls #}
+                    <a href="{% url 'client_list' %}" class="btn btn-primary">View All Clients</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Add more dashboard sections here (e.g., recent documents, tasks, notifications) #}
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{# Link to Font Awesome for icons (already in base.html, but can be added here if needed) #}
+{# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> #}
+{% endblock %}
+
+{% block extra_js %}
+{# Add any extra JS specific to this page here #}
+{% endblock %}

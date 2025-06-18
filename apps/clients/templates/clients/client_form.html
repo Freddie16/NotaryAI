@@ -1,0 +1,55 @@
+{# apps/clients/templates/clients/client_form.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load crispy_forms_tags %} {# Load crispy forms tags #}
+{% load static %} {# Load static files #}
+
+{% block title %}{{ page_title }}{% endblock %} {# Use the page_title from context #}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{{ page_title }}</h3>
+                </div>
+                <div class="card-body">
+                    {# Display Django messages #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% crispy form %} {# Render the client form #}
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success btn-lg">Save Client</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-end">
+                    {% if client %} {# If editing an existing client, link back to detail #}
+                        <a href="{% url 'client_detail' pk=client.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                    {% else %} {# If creating a new client, link back to list #}
+                        <a href="{% url 'client_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{% endblock %}
+
+{% block extra_js %}
+{# Add any extra JS specific to this page here #}
+{% endblock %}

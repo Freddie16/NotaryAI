@@ -1,0 +1,126 @@
+{# apps/documents/templates/documents/document_detail.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load static %} {# Load static files #}
+
+{% block title %}Document: {{ document.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{{ document.name }}</h3>
+                </div>
+                <div class="card-body">
+                    {# Display Django messages #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <p><strong>Uploaded By:</strong> {{ document.uploaded_by.username }}</p>
+                    <p><strong>Upload Date:</strong> {{ document.upload_date|date:"Y-m-d H:i" }}</p>
+                    <p><strong>File Type:</strong> {{ document.file_type }}</p>
+                    <p><strong>File Size:</strong> {{ document.file_size|filesizeformat }}</p>
+                    <p><strong>Status:</strong> <span class="badge bg-{% if document.status == 'processed' %}success{% elif document.status == 'processing' %}info{% elif document.status == 'error' %}danger{% else %}secondary{% endif %}">{{ document.get_status_display }}</span></p>
+
+                    {# Optional: Link to the document file #}
+                    {% if document.file %}
+                        <p><a href="{{ document.file.url }}" target="_blank" class="btn btn-outline-secondary">View Original File</a></p>
+                         {# Optional: Download button - uncomment if you implement document_download_view #}
+                         {# <p><a href="{% url 'document_download' pk=document.pk %}" class="btn btn-outline-secondary">Download File</a></p> #}
+                    {% else %}
+                        <p class="text-muted">No file attached to this document record.</p>
+                    {% endif %}
+
+                    <hr>
+
+                    {# AI Processing Options #}
+                    <h5>AI Processing</h5>
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{% url 'document_summarize' pk=document.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">Summarize Document</button>
+                        </form>
+                        <form method="post" action="{% url 'document_segment' pk=document.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary">Segment Document</button>
+                        </form>
+                        {# Add buttons for other AI/processing features here #}
+                        {# <button class="btn btn-info">Convert to PDF</button> #}
+                        {# <button class="btn btn-warning">Apply QES</button> #}
+                    </div>
+
+                    <hr>
+
+                    {# AI Processing Results #}
+                    <h5>AI Results</h5>
+                    {% if document.summary %}
+                        <h6>Summary:</h6>
+                        <p>{{ document.summary|linebreaksbr }}</p> {# Display summary, preserving line breaks #}
+                    {% else %}
+                        <p class="text-muted">No summary available yet.</p>
+                    {% endif %}
+
+                    {% if document.segmentation_result %}
+                        <h6>Segmentation Result:</h6>
+                        <pre class="bg-light p-3 rounded">{{ document.segmentation_result }}</pre> {# Display segmentation result, preserving formatting #}
+                    {% else %}
+                        <p class="text-muted">No segmentation result available yet.</p>
+                    {% endif %}
+
+                    {# Add display areas for other AI results here #}
+
+                </div>
+                <div class="card-footer text-end">
+                     <a href="{% url 'document_list' %}" class="btn btn-outline-secondary">Back to List</a>
+                     {# Optional: Edit button - uncomment if you implement document_edit_view #}
+                     {# <a href="{% url 'document_edit' pk=document.pk %}" class="btn btn-outline-primary">Edit Metadata</a> #}
+                     <a href="{% url 'document_delete' pk=document.pk %}" class="btn btn-outline-danger">Delete Document</a>
+                </div>
+            </div>
+        </div>
+
+        {# Sidebar for additional info or actions (Optional) #}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Related Information</h5>
+                </div>
+                <div class="card-body">
+                    {# Display related client or matter info here if linked #}
+                    {# {% if document.client %}
+                    {#    <p><strong>Client:</strong> <a href="{% url 'client_detail' pk=document.client.pk %}">{{ document.client.name }}</a></p>
+                    {# {% endif %} #}
+                    {# {% if document.matter %}
+                    {#    <p><strong>Matter:</strong> <a href="{% url 'matter_detail' pk=document.matter.pk %}">{{ document.matter.protocol_number }}</a></p>
+                    {# {% endif %} #}
+                    <p class="text-muted">Add links to related clients, matters, or compliance checks here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{# Example: Link to Font Awesome for icons #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    /* Custom style for preformatted text in segmentation result */
+    pre {
+        white-space: pre-wrap; /* Wrap long lines */
+        word-wrap: break-word; /* Break long words */
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{# Add any extra JS specific to this page here #}
+{% endblock %}

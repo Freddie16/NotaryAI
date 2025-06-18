@@ -1,0 +1,93 @@
+{# apps/integrations/templates/integrations/integration_config.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load crispy_forms_tags %} {# Load crispy forms tags #}
+{% load static %} {# Load static files #}
+
+{% block title %}{{ page_title }}{% endblock %} {# Use the page_title from context #}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{{ page_title }}</h3>
+                </div>
+                <div class="card-body">
+                     {# Display Django messages #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <p><strong>Service:</strong> {{ integration.get_service_name_display }}</p>
+                    <p><strong>Status:</strong>
+                        {% if integration.is_enabled %}
+                            <span class="badge bg-success">Enabled</span>
+                        {% else %}
+                            <span class="badge bg-danger">Disabled</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Last Tested:</strong> {{ integration.last_tested_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
+                    <p><strong>Test Status:</strong>
+                         {% if integration.test_status == 'success' %}
+                            <span class="badge bg-success">{{ integration.test_status|capfirst }}</span>
+                        {% elif integration.test_status == 'failed' %}
+                            <span class="badge bg-danger">{{ integration.test_status|capfirst }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">N/A</span>
+                        {% endif %}
+                    </p>
+
+                    <hr>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% crispy form %} {# Render the config form #}
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success btn-lg">Save Configuration</button>
+                        </div>
+                    </form>
+
+                    {# Optional: OAuth Connect Button #}
+                    {% if integration.service_name in ['outlook', 'zoom'] %} {# Add other OAuth services here #}
+                         <hr>
+                         <h5>OAuth Connection</h5>
+                         {% if integration.access_token %}
+                             <p class="text-success">Connected via OAuth.</p>
+                             {# Optional: Button to disconnect #}
+                             {# <form method="post" action="{% url 'integration_disconnect_oauth' pk=integration.pk %}">
+                             {#    {% csrf_token %}
+                             {#    <button type="submit" class="btn btn-warning">Disconnect OAuth</button>
+                             {# </form> #}
+                         {% else %}
+                             <p class="text-muted">Not connected via OAuth.</p>
+                             {# Button to initiate OAuth flow #}
+                             {# You'll need a view to generate the OAuth URL and redirect the user #}
+                             {# <a href="{% url 'integration_initiate_oauth' pk=integration.pk %}" class="btn btn-info">Connect via OAuth</a> #}
+                         {% endif %}
+                    {% endif %}
+
+
+                </div>
+                <div class="card-footer text-end">
+                     <a href="{% url 'integration_list' %}" class="btn btn-outline-secondary">Back to List</a>
+                     <form method="post" action="{% url 'integration_test' pk=integration.pk %}" class="d-inline ms-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary">Test Connection</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{% endblock %}

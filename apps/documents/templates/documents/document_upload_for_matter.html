@@ -1,0 +1,56 @@
+{# apps/documents/templates/documents/document_upload_for_matter.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load crispy_forms_tags %} {# Load crispy forms tags #}
+{% load static %} {# Load static files - Added #}
+
+{% block title %}Upload Document for Matter: {{ matter.protocol_number }}{% endblock %} {# Corrected title block slightly #}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8"> {# Increased column width slightly for better form layout #}
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Upload Document for Matter: {{ matter.protocol_number }}</h3>
+                </div>
+                <div class="card-body">
+                    {# Display Django messages - Added #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data"> {# Important for file uploads #}
+                        {% csrf_token %}
+                        {% crispy form %} {# Render the document upload form using crispy filter #}
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success btn-lg">Upload Document</button> {# Added btn-lg for larger button #}
+                             {# Cancel button linking back to the matter detail page #}
+                            <a href="{% url 'workflows:matter_detail' pk=matter.pk %}"
+                               class="btn btn-outline-secondary btn-lg"> {# Added btn-lg for larger button #}
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                {# Optional: Card footer if needed #}
+                {# <div class="card-footer text-end">
+                {# </div> #}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{% endblock %}
+
+{% block extra_js %}
+{# Add any extra JS specific to this page here #}
+{% endblock %}

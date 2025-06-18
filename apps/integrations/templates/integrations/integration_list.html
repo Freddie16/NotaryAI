@@ -1,0 +1,143 @@
+{# apps/integrations/templates/integrations/integration_list.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load static %} {# Load static files #}
+
+{% block title %}Integrations{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Integrations</h2>
+
+    {# Display Django messages #}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="mb-3 text-end">
+        <a href="{% url 'integration_create' %}" class="btn btn-primary">Add New Integration</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Configured Integrations</h5>
+        </div>
+        <div class="card-body">
+            {% if integrations %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Enabled</th>
+                                <th>Configured By</th>
+                                <th>Configured At</th>
+                                <th>Last Tested</th>
+                                <th>Test Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for integration in integrations %}
+                                <tr>
+                                    <td>{{ integration.get_service_name_display }}</td>
+                                    <td>
+                                        {% if integration.is_enabled %}
+                                            <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ integration.configured_by|default:"N/A" }}</td>
+                                    <td>{{ integration.configured_at|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ integration.last_tested_at|date:"Y-m-d H:i"|default:"N/A" }}</td>
+                                    <td>
+                                        {% if integration.test_status == 'success' %}
+                                            <span class="badge bg-success">{{ integration.test_status|capfirst }}</span>
+                                        {% elif integration.test_status == 'failed' %}
+                                            <span class="badge bg-danger">{{ integration.test_status|capfirst }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'integration_config' pk=integration.pk %}" class="btn btn-sm btn-primary me-1" title="Configure">
+                                            <i class="fas fa-cog"></i> Configure
+                                        </a>
+                                        <form method="post" action="{% url 'integration_test' pk=integration.pk %}" class="d-inline me-1">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-secondary" title="Test Connection">
+                                                <i class="fas fa-stethoscope"></i> Test
+                                            </button>
+                                        </form>
+                                        <a href="{% url 'integration_delete' pk=integration.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No integrations configured yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Optional Integration Logs Section - Uncomment and implement if needed #}
+    {# <div class="card mt-4"> #}
+    {#    <div class="card-header bg-light"> #}
+    {#        <h5 class="mb-0">Integration Logs</h5> #}
+    {#    </div> #}
+    {#    <div class="card-body"> #}
+    {#        {% if logs %} #}
+    {#            <div class="table-responsive"> #}
+    {#                <table class="table table-sm table-striped"> #}
+    {#                    <thead> #}
+    {#                        <tr> #}
+    {#                            <th>Timestamp</th> #}
+    {#                            <th>Integration</th> #}
+    {#                            <th>Level</th> #}
+    {#                            <th>Message</th> #}
+    {#                            <th>Related Object</th> #}
+    {#                        </tr> #}
+    {#                    </thead> #}
+    {#                    <tbody> #}
+    {#                        {% for log in logs %} #}
+    {#                            <tr> #}
+    {#                                <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td> #}
+    {#                                <td>{{ log.integration.get_service_name_display }}</td> #}
+    {#                                <td><span class="badge bg-{% if log.level == 'ERROR' %}danger{% elif log.level == 'WARNING' %}warning{% else %}info{% endif %}">{{ log.level }}</span></td> #}
+    {#                                <td>{{ log.message }}</td> #}
+    {#                                <td> #}
+    {#                                    {% if log.related_object_id %} #}
+    {#                                        {{ log.related_object_type }} #{{ log.related_object_id }} #}
+    {#                                        {# Optional: Link to the related object if URL patterns are known #}
+    {#                                        {# <a href="{% url 'view_related_object' type=log.related_object_type id=log.related_object_id %}">View</a> #}
+    {#                                    {% else %} #}
+    {#                                        - #}
+    {#                                    {% endif %} #}
+    {#                                </td> #}
+    {#                            </tr> #}
+    {#                        {% endfor %} #}
+    {#                    </tbody> #}
+    {#                </table> #}
+    {#            </div> #}
+    {#        {% else %} #}
+    {#            <p class="text-muted">No integration logs available.</p> #}
+    {#        {% endif %} #}
+    {#    </div> #}
+    {# </div> #}
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Link to Font Awesome for icons #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

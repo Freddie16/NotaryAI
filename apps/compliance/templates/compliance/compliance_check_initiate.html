@@ -1,0 +1,47 @@
+{# apps/compliance/templates/compliance/compliance_check_initiate.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load crispy_forms_tags %} {# Load crispy forms tags #}
+{% load static %} {# Load static files #}
+
+{% block title %}Initiate Compliance Check{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Initiate New Compliance Check</h3>
+                </div>
+                <div class="card-body">
+                    {# Display Django messages #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% crispy form %} {# Render the initiate form #}
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success btn-lg">Initiate Check</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{% url 'compliance_check_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{% endblock %}

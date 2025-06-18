@@ -1,0 +1,32 @@
+{# apps/documents/templates/documents/document_confirm_delete.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load static %} {# Load static files #}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="text-center mb-0">Confirm Deletion</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-center">Are you sure you want to delete the document:</p>
+                    <h4 class="text-center text-danger">{{ document.name }}</h4>
+                    <p class="text-center text-muted">This action cannot be undone.</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">Yes, Delete</button>
+                            <a href="{% url 'document_detail' pk=document.pk %}" class="btn btn-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

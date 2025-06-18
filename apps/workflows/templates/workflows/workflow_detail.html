@@ -1,0 +1,144 @@
+{# apps/workflows/templates/workflows/workflow_detail.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load crispy_forms_tags %} {# Load crispy forms tags #}
+{% load static %} {# Load static files #}
+
+{% block title %}Workflow for Matter: {{ matter.protocol_number }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Workflow for Matter: <a href="{% url 'matter_detail' pk=matter.pk %}" class="text-white">{{ matter.protocol_number }}</a></h3>
+                </div>
+                <div class="card-body">
+                    {# Display Django messages #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <p><strong>Workflow Status:</strong> <span class="badge bg-{% if workflow.status == 'completed' %}success{% elif workflow.status == 'in_progress' %}info{% elif workflow.status == 'cancelled' %}danger{% else %}secondary{% endif %}">{{ workflow.get_status_display }}</span></p>
+                    <p><strong>Template Used:</strong> {{ workflow.template|default:"Custom" }}</p>
+                    <p><strong>Initiated At:</strong> {{ workflow.initiated_at|date:"Y-m-d H:i" }}</p>
+                    <p><strong>Completed At:</strong> {{ workflow.completed_at|date:"Y-m-d H:i"|default:"N/A" }}</p>
+
+                    <hr>
+
+                    {# AI Suggested Steps (if any) #}
+                    {% if workflow.ai_generated_steps %}
+                        <h5>AI Suggested Steps:</h5>
+                        <ul class="list-group list-group-flush mb-3">
+                            {% for step_text in workflow.ai_generated_steps %}
+                                <li class="list-group-item bg-light">{{ step_text }}</li>
+                            {% endfor %}
+                        </ul>
+                        {# Optional: Button to add AI steps to workflow #}
+                        {# <form method="post" action="{% url 'workflow_add_ai_steps' pk=workflow.pk %}" class="mt-2">
+                        {#    {% csrf_token %}
+                        {#    <button type="submit" class="btn btn-sm btn-outline-primary">Add AI Steps to Workflow</button>
+                        {# </form> #}
+                         <hr>
+                    {% endif %}
+
+                    {# Workflow Steps Formset #}
+                    <h5>Workflow Steps</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ formset.management_form }} {# Management form is required for formsets #}
+
+                        {% for form in formset %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row">
+                                        {# Step Order and Name #}
+                                        <div class="col-md-6">
+                                            {% crispy form.order %}
+                                            {% crispy form.name %}
+                                        </div>
+                                        {# Status and Assigned User #}
+                                        <div class="col-md-6">
+                                            {% crispy form.status %}
+                                            {% crispy form.assigned_to %}
+                                        </div>
+                                    </div>
+                                    {# Description and Due Date #}
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                             {% crispy form.description %}
+                                        </div>
+                                        <div class="col-md-4">
+                                             {% crispy form.due_date %}
+                                        </div>
+                                    </div>
+                                    {# Notes #}
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            {% crispy form.notes %}
+                                        </div>
+                                    </div>
+
+                                    {# Hidden fields for step template and ID #}
+                                    {{ form.step_template }} {# Keep step_template if needed #}
+                                    {{ form.id }} {# Hidden field for existing step ID #}
+
+                                    {# Delete checkbox for existing steps #}
+                                    {% if form.instance.pk %}
+                                        <div class="form-check mt-2">
+                                            {{ form.DELETE }}
+                                            <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">Delete Step</label>
+                                        </div>
+                                    {% endif %}
+
+                                    {# Display form errors for this specific form/step #}
+                                    {% for error in form.non_field_errors %}
+                                        <div class="alert alert-danger mt-2">{{ error }}</div>
+                                    {% endfor %}
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <div class="alert alert-danger mt-2">{{ field.label }}: {{ error }}</div>
+                                        {% endfor %}
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {# Add New Step Button (managed by formset extra=1) #}
+                        {# The empty form will appear automatically if extra > 0 #}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">Save Workflow Steps</button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="card-footer text-end">
+                     <a href="{% url 'matter_detail' pk=matter.pk %}" class="btn btn-outline-secondary">Back to Matter</a>
+                     {# Optional: Button to trigger AI step generation #}
+                     <form method="post" action="{% url 'workflow_trigger_ai_steps' workflow_pk=workflow.pk %}" class="d-inline ms-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary">Trigger AI Steps</button>
+                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Link to Font Awesome for icons #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block extra_js %}
+{# Add any extra JS specific to this page here #}
+{# You might need JS to dynamically show/hide fields based on step_template selection #}
+{% endblock %}

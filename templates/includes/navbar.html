@@ -1,0 +1,81 @@
+{# templates/includes/nav.html #}
+{% load static %} {# Load static files tag library #}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid"> {# Use container-fluid for full width, or 'container' for fixed width #}
+        {# Link to the Dashboard as the brand #}
+        <a class="navbar-brand" href="{% url 'dashboard' %}">NotaryAI</a>
+
+        {# Toggler button for mobile view #}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        {# Navbar links #}
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0"> {# me-auto pushes subsequent items to the right #}
+                {# Navigation links - show based on user authentication #}
+                {% if user.is_authenticated %}
+                    {# Dashboard Link #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                    </li>
+                    {# Matters Link (using namespaced URL) #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'workflows:matter_list' %}">Matters</a>
+                    </li>
+                    {# Clients Link #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'client_list' %}">Clients</a>
+                    </li>
+                     {# Documents Link #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'document_list' %}">Documents</a>
+                    </li>
+                     {# Compliance Link #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'compliance_check_list' %}">Compliance</a>
+                    </li>
+                    {# Integrations Link - Only show for Admin users #}
+                    {% if user.is_superuser or user.role == 'admin' %}
+                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'integration_list' %}">Integrations</a>
+                        </li>
+                    {% endif %}
+
+                    {# Removed the commented-out 'More' dropdown #}
+
+                {% endif %}
+            </ul>
+
+            {# Right-aligned items (e.g., user info, login/logout) #}
+            <ul class="navbar-nav ms-auto"> {# ms-auto pushes these items to the far right #}
+                {% if user.is_authenticated %}
+                    {# User Dropdown #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {# Display username and role #}
+                            <i class="fas fa-user-circle"></i> {{ user.username }} ({{ user.get_role_display }})
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            {# Optional: Link to user profile #}
+                            {# <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li> #}
+                            {# <li><hr class="dropdown-divider"></li> #}
+                            {# Logout Link #}
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    {# Login Link #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    {# Register Link #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

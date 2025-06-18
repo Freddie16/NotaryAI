@@ -1,29 +1,36 @@
-Django==4.2.7
-django-environ==0.11.2
-django-crispy-forms==2.1
-crispy-bootstrap5==2023.10
-django-allauth==0.58.2
-django-widget-tweaks==1.5.0
-whitenoise==6.6.0
-python-dotenv==1.0.0
-google-generativeai==0.3.2
-Pillow==10.3.0  # Latest version with fixed metadata
-python-magic-bin==0.4.14  # Windows-compatible
-pdf2image==1.17.0
-PyPDF2==3.0.1
-django-cleanup==8.0.0
-celery==5.3.5
-redis==5.0.1
-django-redis==5.3.0
-paypalrestsdk==1.13.1
-django-paypal==4.0
-django-storages==1.14.0
-boto3==1.34.62
-python-pptx==0.6.23
-python-docx==0.8.11
-django-tables2==2.7.0
-django-filter==23.5
-django-bootstrap5==23.3
-django-htmx==1.18.0
-django-select2==8.0.0
-gunicorn==21.2.0
+# requirements.txt
+
+# Django
+Django>=5.0
+
+# Environment variables
+django-environ>=0.8.1
+
+# Document Processing (for AI analysis)
+google-generativeai>=0.3.0
+Pillow>=9.0.0
+pdfminer.six>=20221105
+python-docx>=0.8.11
+
+# Forms
+django-crispy-forms
+crispy-bootstrap5
+
+# HTTP Requests
+requests
+
+# Integrations
+zoomus # For Zoom integration (keeping this)
+
+# --- Google API for Gmail (Replacing Microsoft Graph) ---
+google-api-python-client # Google API client library
+google-auth # Google authentication library
+google-auth-oauthlib # Google OAuth flow library
+
+# Authentication
+django-allauth # If you are using django-allauth
+
+# File Storage (if using cloud storage like S3 or Google Cloud Storage)
+django-storages # Example
+
+# Add any other dependencies your project needs here

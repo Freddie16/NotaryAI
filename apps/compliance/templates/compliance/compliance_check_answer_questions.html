@@ -1,0 +1,119 @@
+{# apps/compliance/templates/compliance/compliance_check_answer_questions.html #}
+{% extends 'base.html' %} {# Extend the base project template #}
+{% load crispy_forms_tags %} {# Load crispy forms tags #}
+{% load static %} {# Load static files #}
+
+{% block title %}Answer Questions for Check #{{ compliance_check.pk }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Answer Questions for Check #{{ compliance_check.pk }}</h3>
+                </div>
+                <div class="card-body">
+                    {# Display Django messages #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <p><strong>Client:</strong> {{ compliance_check.client|default:"N/A" }}</p>
+                    <p><strong>Matter:</strong> {{ compliance_check.matter|default:"N/A" }}</p>
+                    <p><strong>Template:</strong> {{ compliance_check.template|default:"Custom" }}</p>
+
+                    <hr>
+
+                    <form method="post" enctype="multipart/form-data"> {# Need enctype for file uploads #}
+                        {% csrf_token %}
+                        {{ formset.management_form }} {# Management form is required for formsets #}
+
+                        {% for form in formset %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    {# Access the question object passed in initial data #}
+                                    {% with question=form.initial.question %}
+                                        <h5>{{ forloop.counter }}. {{ question.question_text }} {% if question.is_required %}<span class="text-danger">*</span>{% endif %}</h5>
+                                        <p class="text-muted small">Answer Type: {{ question.get_answer_type_display }}</p>
+
+                                        {# Render the appropriate field based on answer_type #}
+                                        {% if question.answer_type == 'text' %}
+                                            {% crispy form.answer_text %}
+                                        {% elif question.answer_type == 'boolean' %}
+                                            {# Render boolean as radio buttons or dropdown #}
+                                            {# Example using Bootstrap form-check for radio buttons #}
+                                            <div class="form-group">
+                                                <label>{{ form.answer_boolean.label }}</label>
+                                                <div class="form-check">
+                                                    {{ form.answer_boolean.tag }} {{ form.answer_boolean.label }}
+                                                </div>
+                                                {# You might need custom rendering for True/False radio buttons #}
+                                                {# <div class="form-check form-check-inline">
+                                                {#    <input class="form-check-input" type="radio" name="{{ form.answer_boolean.name }}" id="{{ form.answer_boolean.id_for_label }}_0" value="True" {% if form.answer_boolean.value == True %}checked{% endif %}>
+                                                {#    <label class="form-check-label" for="{{ form.answer_boolean.id_for_label }}_0">Yes</label>
+                                                {# </div>
+                                                {# <div class="form-check form-check-inline">
+                                                {#    <input class="form-check-input" type="radio" name="{{ form.answer_boolean.name }}" id="{{ form.answer_boolean.id_for_label }}_1" value="False" {% if form.answer_boolean.value == False %}checked{% endif %}>
+                                                {#    <label class="form-check-label" for="{{ form.answer_boolean.id_for_label }}_1">No</label>
+                                                {# </div> #}
+                                            </div>
+                                        {% elif question.answer_type == 'choice' %}
+                                            {# Render choice as dropdown or radio buttons #}
+                                            {# You'll need to parse question.choice_options to create the choices #}
+                                            {# For simplicity, rendering as text input for now, but customize this #}
+                                            {% crispy form.answer_choice %}
+                                            <p class="text-muted small">Options: {{ question.choice_options|default:"N/A" }}</p>
+                                        {% elif question.answer_type == 'date' %}
+                                             {% crispy form.answer_date %}
+                                        {% elif question.answer_type == 'file' %}
+                                             {% crispy form.answer_file %}
+                                             {% if form.initial.answer_file %}
+                                                 <p><small>Existing file: <a href="{{ form.initial.answer_file.url }}" target="_blank">{{ form.initial.answer_file.name }}</a></small></p>
+                                             {% endif %}
+                                        {% else %}
+                                            <p class="text-muted">Unsupported answer type.</p>
+                                        {% endif %}
+
+                                        {# Display form errors for this specific form/question #}
+                                        {% for error in form.non_field_errors %}
+                                            <div class="alert alert-danger mt-2">{{ error }}</div>
+                                        {% endfor %}
+                                        {% for field in form %}
+                                            {% for error in field.errors %}
+                                                <div class="alert alert-danger mt-2">{{ error }}</div>
+                                            {% endfor %}
+                                        {% endfor %}
+
+                                    {% endwith %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">Save Answers</button>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{% url 'compliance_check_detail' pk=compliance_check.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{# Add any extra CSS specific to this page here #}
+{% endblock %}
+
+{% block extra_js %}
+{# Add any extra JS specific to this page here #}
+{% endblock %}
